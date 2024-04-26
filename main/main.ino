@@ -1,21 +1,30 @@
+/*
+- HUSKYLENS SCREEN RESOLUTION 320x240
+*/
 
 #include "HUSKYLENS.h"
 #include "SoftwareSerial.h"
 
 HUSKYLENS huskylens;
 //HUSKYLENS green line >> SDA; blue line >> SCL
-void printResult(HUSKYLENSResult result);
+void directionToMove(HUSKYLENSResult result);
+void turnRobot(float degrees);
 
-int threshold = 15;
+int threshold = 15; // +/- x pixels from center allowed before robot changes direction
+
 int dirA = 12;
 int dirB = 13;
+
 int pwmA = 3;
 int pwmB = 11;
 
 
 void setup() {
+    // begin on i2c
     Serial.begin(115200);
     Wire.begin();
+
+    // Serial print until HUSYLENS is connected to i2c
     while (!huskylens.begin(Wire))
     {
         Serial.println(F("Begin failed!"));
@@ -23,27 +32,39 @@ void setup() {
         Serial.println(F("2.Please recheck the connection."));
         delay(100);
     }
+
 }
 
 void loop() {
-    if (!huskylens.request()) Serial.println(F("Fail to request data from HUSKYLENS, recheck the connection!"));
-    else if(!huskylens.isLearned()) Serial.println(F("Nothing learned, press learn button on HUSKYLENS to learn one!"));
-    else if(!huskylens.available()) Serial.println(F("No block or arrow appears on the screen!"));
+
+    if (!huskylens.request()) Serial.println(F("Fail to request data from HUSKYLENS, recheck the connection!")); // Huskylens not connected
+    else if(!huskylens.isLearned()) Serial.println(F("Nothing learned, press learn button on HUSKYLENS to learn one!")); // no objects learned
+    else if(!huskylens.available()) Serial.println(F("No block or arrow appears on the screen!")); // nothing detected
     else
     {
         Serial.println(F("###########"));
         while (huskylens.available())
         {
             HUSKYLENSResult result = huskylens.read();
-            printResult(result);
+            directionToMove(result);
         }    
     }
+
 }
 
-void printResult(HUSKYLENSResult result){
+/* 
+  returns direction robot need to move in order to get back 
+  on cource with the line
+
+  directionToMove(HUSYLENSResult result)
+
+  takes a HUSKYLENSResult object
+
+  //TODO: MAKE FUNCTION RETURN NUM OF DEGRESS TO MOVE L OR R
+ */
+void directionToMove(HUSKYLENSResult result){
     if (result.command == COMMAND_RETURN_BLOCK){
       int x = result.xCenter;
-        //Serial.println(String()+F("Block:xCenter=")+result.xCenter+F(",yCenter=")+result.yCenter+F(",width=")+result.width+F(",height=")+result.height+F(",ID=")+result.ID);
        if( x < 160 - threshold){ 
         Serial.println("left");
        }
@@ -59,5 +80,15 @@ void printResult(HUSKYLENSResult result){
         Serial.println("Object unknown!");
     }
 }
-// 320 240
 
+
+/*
+ turns robot n amount of degress in any direction 
+
+ takes a float, degress, for how many degress from center to turn
+
+ 10.00 would 10 degrees to the right and -10.00 would be 10 degress to the left
+*/
+void turnRobot(float degrees) {
+
+}
