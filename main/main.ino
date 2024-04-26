@@ -7,7 +7,7 @@
 
 HUSKYLENS huskylens;
 //HUSKYLENS green line >> SDA; blue line >> SCL
-void directionToMove(HUSKYLENSResult result);
+String directionToMove(HUSKYLENSResult result);
 void turnRobot(float degrees);
 
 int threshold = 15; // +/- x pixels from center allowed before robot changes direction
@@ -62,25 +62,22 @@ void loop() {
 
   //TODO: MAKE FUNCTION RETURN NUM OF DEGRESS TO MOVE L OR R
  */
-void directionToMove(HUSKYLENSResult result){
+String directionToMove(HUSKYLENSResult result) {
     if (result.command == COMMAND_RETURN_BLOCK){
-      int x = result.xCenter;
-       if( x < 160 - threshold){ 
-        Serial.println("left");
-       }
-       if(x > 160 + threshold) {
-        Serial.println("right");
-       }
-       
-    }
-    else if (result.command == COMMAND_RETURN_ARROW){
-        Serial.println(String()+F("Arrow:xOrigin=")+result.xOrigin+F(",yOrigin=")+result.yOrigin+F(",xTarget=")+result.xTarget+F(",yTarget=")+result.yTarget+F(",ID=")+result.ID);
-    }
-    else{
-        Serial.println("Object unknown!");
-    }
-}
+        int x = result.xCenter; // center of obj
 
+        // if obj is left of center
+        if (x < (160 - threshold)) { 
+            return "left";
+        }
+        // if obj is right of center
+        if (x > (160 + threshold)) {
+            return "right":
+        }      
+    } else {
+        return "none";
+    }
+} 
 
 /*
  turns robot n amount of degress in any direction 
