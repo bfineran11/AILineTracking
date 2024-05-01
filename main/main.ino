@@ -4,17 +4,19 @@
 
 #include "HUSKYLENS.h"
 #include "SoftwareSerial.h"
+#include "motorControl.h"
+#include "visionControl.h"
 
 HUSKYLENS huskylens;
 //HUSKYLENS green line >> SDA; blue line >> SCL
-String directionToMove(HUSKYLENSResult result);
-void turnRobot(String direction);
 
-int threshold = 15; // +/- x pixels from center allowed before robot changes direction
-
+// dir is motor ON, OFF
+// controlled by digitalWrite(pin, HIGH/LOW)
 int dirA = 12;
 int dirB = 13;
 
+// pwm is motor power
+// cotrolled by analogWrite(pin, int)
 int pwmA = 3;
 int pwmB = 11;
 
@@ -26,8 +28,6 @@ void setup() {
 
     pinMode(dirA, OUTPUT);
     pinMode(dirB, OUTPUT);
-    analogWrite(pwmA, 180);
-    analogWrite(pwmB, 180);
 
     // Serial print until HUSYLENS is connected to i2c
     while (!huskylens.begin(Wire))
@@ -51,53 +51,12 @@ void loop() {
         while (huskylens.available())
         {
             HUSKYLENSResult result = huskylens.read();
-            turnRobot(result);
+
+            // should print int, +/-
+            Serial.println(directionToMove(result));
         }    
     }
 
 }
 
-/* 
-  returns direction robot need to move in order to get back 
-  on cource with the line
 
-  directionToMove(HUSYLENSResult result)
-
-  takes a HUSKYLENSResult object
-
-  //TODO: MAKE FUNCTION RETURN NUM OF DEGRESS TO MOVE L OR R
- */
-String directionToMove(HUSKYLENSResult result) {
-    if (result.command == COMMAND_RETURN_BLOCK){
-        int x = result.xCenter; // center of obj
-
-        // if obj is left of center
-        if (x < (160 - threshold)) { 
-            Serial.println("left");
-            return "left";
-        }
-        // if obj is right of center
-        if (x > (160 + threshold)) {
-            Serial.println("right");
-            return "right";
-        }
-        if (x < (160+threshold) && x > (160-threshold)) {
-//          digitalWrite(pwmA, HIGH);
-//          digitalWrite(pwmB, LOW);
-        }
-  } else {
-    return "ldldl";
-  }
-}
-
-void turnRobot(HUSKYLENSResult result) {
-  if (directionToMove(result) == "left") {
-    analogWrite(pwmA, 180);
-    analogWrite(pwmB, 180);
-  } else if (directionToMove(result) == "right") {
-    
-  } else {
-    // forget about it
-  }
-
-}
