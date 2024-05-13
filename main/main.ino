@@ -1,51 +1,16 @@
 #include "HUSKYLENS.h"
 #include "SoftwareSerial.h"
-
-HUSKYLENS huskylens;
-//HUSKYLENS green line >> SDA; blue line >> SCL
-
-int threshold = 15; // +/- x pixels from center allowed before robot changes direction
-
-int dirA = 12;
-int dirB = 13;
-
-int speed = 60;
-int pwmA = 3;
-int pwmB = 11;
-
-
-void stop(){
-  analogWrite(pwmA, 0);
-  analogWrite(pwmB, 0);
-  
-}
-void forward(int t){
-  analogWrite(pwmA, speed -10);
-  analogWrite(pwmB, speed);
-  digitalWrite(dirA, LOW);
-  digitalWrite(dirB, HIGH);
-}
-
-void turnLeft(int t){
-  analogWrite(pwmA, speed);
-  analogWrite(pwmB, speed-(t*5));
-  digitalWrite(dirA, LOW);
-  digitalWrite(dirB, HIGH);
-//  delay(t);
-}
-
-void turnRight(int t){
-  analogWrite(pwmA, speed-(t*5));
-  analogWrite(pwmB, speed);
-  digitalWrite(dirA, LOW);
-  digitalWrite(dirB, HIGH);
-//  delay(t);
-}
+#include "motorControl.cpp"
+#include "visionControl.cpp"
 
 
 void setup() {
+    // beginning i2c communication with Huskylens
     Serial.begin(115200);
     Wire.begin();
+
+
+    // checking to see if it is connected
     while (!huskylens.begin(Wire))
     {
         Serial.println(F("Begin failed!"));
@@ -56,16 +21,21 @@ void setup() {
 }
 
 void loop() {
-    if (!huskylens.request()) Serial.println(F("Fail to request data from HUSKYLENS, recheck the connection!"));
-    else if(!huskylens.isLearned()) Serial.println(F("Nothing learned, press learn button on HUSKYLENS to learn one!"));
-    else if(!huskylens.available()) Serial.println(F("No block or arrow appears on the screen!"));
+    if (!huskylens.request()){
+        Serial.println(F("Fail to request data from HUSKYLENS, recheck the connection!"));
+    } 
+    else if(!huskylens.isLearned()) {
+        Serial.println(F("Nothing learned, press learn button on HUSKYLENS to learn one!"));
+    }
+    else if(!huskylens.available()) {
+        Serial.println(F("No block or arrow appears on the screen!"));
+    }
     else
     {
         Serial.println(F("###########"));
         while (huskylens.available())
         {
             HUSKYLENSResult result = huskylens.read();
-//            printResult(result);
             printResultInt(result);
               
         }    
