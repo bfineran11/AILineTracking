@@ -36,60 +36,15 @@ void loop() {
         while (huskylens.available())
         {
             HUSKYLENSResult result = huskylens.read();
-            printResultInt(result);
-              
+            MotorControl mc(60, 4, 10, 12, 13, 3, 11);
+            VisionControl vc(15);
+            if (vc.findDirectionToTurn(result) == "left") {
+                mc.turnLeft();
+            } else if (vc.findDirectionToTurn == "right") {
+                mc.turnRight();
+            } else  {
+                mc.forward();
+            }
         }    
     }
-}
-
-void printResult(HUSKYLENSResult result){
-    if (result.command == COMMAND_RETURN_BLOCK){
-      int x = result.xCenter;
-        //Serial.println(String()+F("Block:xCenter=")+result.xCenter+F(",yCenter=")+result.yCenter+F(",width=")+result.width+F(",height=")+result.height+F(",ID=")+result.ID);
-       if( x < 160 - threshold){ 
-        turnLeft(100);
-        Serial.println("left");
-       }
-       if(x > 160 + threshold) {
-        Serial.println("right");
-        turnRight(100);
-       }
-       else {
-        forward(50);
-       }
-
-    }
-    else if (result.command == COMMAND_RETURN_ARROW){
-      int x1 = result.xOrigin;
-      int y1 = result.yOrigin;
-      int x2 = result.xTarget;
-      int y2 = result.yTarget;
-        Serial.println(String()+F("Arrow:xOrigin=")+result.xOrigin+F(",yOrigin=")+result.yOrigin+F(",xTarget=")+result.xTarget+F(",yTarget=")+result.yTarget+F(",ID=")+result.ID);
-    if (y1 > y2){
-      Serial.println("forward");
-      forward(50);
-    }
-    
-    }
-    else{ 
-        Serial.println("Object unknown!");
-    }
-}
-
-void printResultInt(HUSKYLENSResult result) {
-  if (result.command == COMMAND_RETURN_BLOCK) {
-    int x = result.xCenter;
-
-   if( x < 160 - threshold){ 
-    turnLeft(abs(160-x));
-    Serial.println("left");
-   }
-   if(x > 160 + threshold) {
-    Serial.println("right");
-    turnRight(abs(160-x));
-   }
-   else {
-    forward(50);
-   }
-  }
 }
