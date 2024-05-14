@@ -1,35 +1,16 @@
-/*
-- HUSKYLENS SCREEN RESOLUTION 320x240
-*/
-
 #include "HUSKYLENS.h"
 #include "SoftwareSerial.h"
-#include "motorControl.h"
-#include "visionControl.h"
-
-HUSKYLENS huskylens;
-//HUSKYLENS green line >> SDA; blue line >> SCL
-
-// dir is motor ON, OFF
-// controlled by digitalWrite(pin, HIGH/LOW)
-int dirA = 12;
-int dirB = 13;
-
-// pwm is motor power
-// cotrolled by analogWrite(pin, int)
-int pwmA = 3;
-int pwmB = 11;
+#include "motorControl.cpp"
+#include "visionControl.cpp"
 
 
 void setup() {
-    // begin on i2c
+    // beginning i2c communication with Huskylens
     Serial.begin(115200);
     Wire.begin();
 
-    pinMode(dirA, OUTPUT);
-    pinMode(dirB, OUTPUT);
 
-    // Serial print until HUSYLENS is connected to i2c
+    // checking to see if it is connected
     while (!huskylens.begin(Wire))
     {
         Serial.println(F("Begin failed!"));
@@ -37,26 +18,78 @@ void setup() {
         Serial.println(F("2.Please recheck the connection."));
         delay(100);
     }
-
 }
 
 void loop() {
-
-    if (!huskylens.request()) Serial.println(F("Fail to request data from HUSKYLENS, recheck the connection!")); // Huskylens not connected
-    else if(!huskylens.isLearned()) Serial.println(F("Nothing learned, press learn button on HUSKYLENS to learn one!")); // no objects learned
-    else if(!huskylens.available()) Serial.println(F("No block or arrow appears on the screen!")); // nothing detected
+    if (!huskylens.request()){
+        Serial.println(F("Fail to request data from HUSKYLENS, recheck the connection!"));
+    } 
+    else if(!huskylens.isLearned()) {
+        Serial.println(F("Nothing learned, press learn button on HUSKYLENS to learn one!"));
+    }
+    else if(!huskylens.available()) {
+        Serial.println(F("No block or arrow appears on the screen!"));
+    }
     else
     {
         Serial.println(F("###########"));
         while (huskylens.available())
         {
             HUSKYLENSResult result = huskylens.read();
-
-            // should print int, +/-
-            Serial.println(directionToMove(result));
+            printResultInt(result);
+              
         }    
     }
-
 }
 
+void printResult(HUSKYLENSResult result){
+    if (result.command == COMMAND_RETURN_BLOCK){
+      int x = result.xCenter;
+        //Serial.println(String()+F("Block:xCenter=")+result.xCenter+F(",yCenter=")+result.yCenter+F(",width=")+result.width+F(",height=")+result.height+F(",ID=")+result.ID);
+       if( x < 160 - threshold){ 
+        turnLeft(100);
+        Serial.println("left");
+       }
+       if(x > 160 + threshold) {
+        Serial.println("right");
+        turnRight(100);
+       }
+       else {
+        forward(50);
+       }
 
+    }
+    else if (result.command == COMMAND_RETURN_ARROW){
+      int x1 = result.xOrigin;
+      int y1 = result.yOrigin;
+      int x2 = result.xTarget;
+      int y2 = result.yTarget;
+        Serial.println(String()+F("Arrow:xOrigin=")+result.xOrigin+F(",yOrigin=")+result.yOrigin+F(",xTarget=")+result.xTarget+F(",yTarget=")+result.yTarget+F(",ID=")+result.ID);
+    if (y1 > y2){
+      Serial.println("forward");
+      forward(50);
+    }
+    
+    }
+    else{ 
+        Serial.println("Object unknown!");
+    }
+}
+
+void printResultInt(HUSKYLENSResult result) {
+  if (result.command == COMMAND_RETURN_BLOCK) {
+    int x = result.xCenter;
+
+   if( x < 160 - threshold){ 
+    turnLeft(abs(160-x));
+    Serial.println("left");
+   }
+   if(x > 160 + threshold) {
+    Serial.println("right");
+    turnRight(abs(160-x));
+   }
+   else {
+    forward(50);
+   }
+  }
+}
