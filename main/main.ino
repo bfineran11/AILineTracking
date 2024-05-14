@@ -3,6 +3,7 @@
 #include "motorControl.cpp"
 #include "visionControl.cpp"
 
+HUSKYLENS huskylens;
 
 void setup() {
     // beginning i2c communication with Huskylens
@@ -36,12 +37,15 @@ void loop() {
         while (huskylens.available())
         {
             HUSKYLENSResult result = huskylens.read();
-            MotorControl mc(60, 4, 10, 12, 13, 3, 11);
-            VisionControl vc(15);
-            if (vc.findDirectionToTurn(result) == "left") {
-                mc.turnLeft();
-            } else if (vc.findDirectionToTurn == "right") {
-                mc.turnRight();
+            MotorControl mc = MotorControl(45, 6, 10, 12, 13, 3, 11);
+            VisionControl vc = VisionControl(15);
+
+            int turnN = vc.findDirectionToSmoothTurn(result);
+            
+            if (turnN < 160) {
+                mc.turnLeft(turnN);
+            } else if (turnN > 160) {
+                mc.turnRight(turnN);
             } else  {
                 mc.forward();
             }

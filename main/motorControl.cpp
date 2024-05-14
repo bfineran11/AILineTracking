@@ -65,7 +65,7 @@ class MotorControl {
         // no arg
         MotorControl() {
             // some base numbers, works for my robot, might not for yours
-            speed = 60;
+            speed = 45;
             multiplier = 4;
             motorAdjustment = 10;
 
@@ -89,7 +89,7 @@ class MotorControl {
 
         // moves robot forward
         void forward() {
-            analogWrite(pwmA, speed - motorAdjust);
+            analogWrite(pwmA, speed - motorAdjustment);
             analogWrite(pwmB, speed);
         }
 
@@ -131,4 +131,4 @@ class MotorControl {
         motorAdjustment = motorAdjustmentSet;
        }
 
-}
+};
