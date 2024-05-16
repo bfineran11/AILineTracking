@@ -1,6 +1,6 @@
 #include "HUSKYLENS.h"
 #include "SoftwareSerial.h"
-#include <string>
+
 
 class VisionControl {
     private:
@@ -26,17 +26,11 @@ class VisionControl {
             if (result.command == COMMAND_RETURN_BLOCK) {
                 int x = result.xCenter;
 
-                if( x < 160 - threshold){ 
-                    return abs(160-x);
-                    Serial.println("left");
-                }
-                if(x > 160 + threshold) {
-                    return abs(160-x);
-                    Serial.println("right");
-                }
-                else {
-                    return 0;
-                }
+                return x-160;
+  
+            }
+            else {
+              return -1;
             }
         }
 
@@ -54,9 +48,16 @@ class VisionControl {
                 }
                 else {
                     Serial.println("forward");
-                    return "forward"
+                    return "forward";
                 }
+            }
+            else {
+              return "stop";
             }
         }
 
-}
+        int getThreshold() {
+          return threshold;
+        }
+
+};
