@@ -102,6 +102,13 @@ class MotorControl {
             analogWrite(pwmB, 0);         
         }
 
+        void lookAround() {
+          digitalWrite(dirA, HIGH);
+          digitalWrite(dirB, HIGH);
+          analogWrite(pwmA, 35);
+          analogWrite(pwmB, 35);
+        }
+
 
         /*
         

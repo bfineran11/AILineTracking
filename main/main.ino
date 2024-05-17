@@ -45,19 +45,21 @@ void loop() {
 
             int turnN = vc.findDirectionToSmoothTurn(result);
 
-         
             
-            if (turnN > 0) {
+            if (result.command != COMMAND_RETURN_BLOCK) {
+              mc.stop();
+            }
+            else if (turnN < 0) {
                 mc.turnLeft(turnN);
                 delay(10);
-            } else if (turnN < 0) {
+            } else if (turnN > 0) {
                 mc.turnRight(turnN);
                 delay(10);
             } else if (turnN < vc.getThreshold() && turnN >0){
                 mc.forward();
                 delay(10);
             } else if (turnN == -1){
-                delay(50);
+                mc.lookAround();
             } else {
                 mc.stop();
                 delay(10);
