@@ -78,7 +78,7 @@ class MotorControl {
         // turns robot right
         void turnRight(int diff) {
 //            analogWrite(pwmA, speed-(diff*multiplier));
-            analogWrite(pwmA, speed-20);
+            analogWrite(pwmA, speed-9);
             analogWrite(pwmB, speed);
         }
 
@@ -86,7 +86,7 @@ class MotorControl {
         void turnLeft(int diff) {
             analogWrite(pwmA, speed);
 //            analogWrite(pwmB, speed-(diff*multiplier));
-            analogWrite(pwmB, speed-20);
+            analogWrite(pwmB, speed-9);
         }
 
         // moves robot forward

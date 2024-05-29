@@ -5,14 +5,14 @@
 
 HUSKYLENS huskylens;
 
-MotorControl mc = MotorControl(50, 3, 10, 12, 13, 3, 11);
-VisionControl vc = VisionControl(15);
+MotorControl mc = MotorControl(52, 3, 10, 12, 13, 3, 11);
+VisionControl vc = VisionControl(22);
 
 
 void setup() {
     // beginning i2c communication with Huskylens
     Serial.begin(115200);
-    Wire.begin();
+    Wire.begin(); 
 
 
 
@@ -27,6 +27,7 @@ void setup() {
 }
 
 void loop() {
+  
     if (!huskylens.request()){
         Serial.println(F("Fail to request data from HUSKYLENS, recheck the connection!"));
     } 
@@ -46,20 +47,17 @@ void loop() {
             int turnN = vc.findDirectionToSmoothTurn(result);
 
             
-            if (result.command != COMMAND_RETURN_BLOCK) {
-              mc.stop();
-            }
-            else if (turnN < 0) {
+            if (turnN == -1){
+                mc.stop();
+            } else if (turnN < vc.getThreshold() && turnN >0){
+                mc.forward();
+                delay(10);
+            } else if (turnN < 0) {
                 mc.turnLeft(turnN);
                 delay(10);
             } else if (turnN > 0) {
                 mc.turnRight(turnN);
                 delay(10);
-            } else if (turnN < vc.getThreshold() && turnN >0){
-                mc.forward();
-                delay(10);
-            } else if (turnN == -1){
-                mc.lookAround();
             } else {
                 mc.stop();
                 delay(10);
